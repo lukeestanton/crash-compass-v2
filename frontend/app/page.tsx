@@ -1,26 +1,69 @@
-// home
 import MainDial from "./components/MainDial";
-import OutlookCard from "./components/OutlookCard";
+import RecessionHistoryChart from "./components/RecessionHistoryChart";
 import ContributingFactors from "./components/ContributingFactors";
+import DashboardGrid from "./components/DashboardGrid";
 import { apiGet } from "@/lib/api";
-import { slugify, toDisplayName } from "@/lib/slug";
+import { toDisplayName } from "@/lib/slug";
+import { getDescription } from "@/lib/descriptions";
 
 export default async function Home() {
   const [categories, dialScoreRaw] = await Promise.all([
     apiGet<Record<string, { series: string[]; outlook_score?: number }>>("/api/v1/fred/categories"),
     apiGet<any>("/api/v1/fred/dial_score").catch(() => 0)
   ]);
+
   const dialVal = typeof dialScoreRaw === "number" ? dialScoreRaw : (dialScoreRaw?.score ?? 0);
   const contributors = (typeof dialScoreRaw === "object" && dialScoreRaw !== null) ? dialScoreRaw.contributors : [];
-  const categoryKeys = Object.keys(categories || {});
+  const categoryKeys = Object.keys(categories || {}).filter(key => key !== "Recession");
+
+  // Pre-fetch hero data for each category to enable the accordion/SPA behavior
+  const categoriesData = await Promise.all(
+    categoryKeys.map(async (key) => {
+      const catData = categories[key];
+      const heroId = catData.series[0]; // First series is "Hero"
+      const otherIds = catData.series.slice(1);
+
+      // Fetch hero series data
+      const heroSeriesData = await apiGet<{ name: string; series: { date: string; value: string }[] }>(
+        `/api/v1/fred/series/${heroId}`
+      );
+
+      // Determine the "Why" description
+      // Find the contributor with the highest impact (absolute SHAP) that belongs to this category
+      let relevantContributor = contributors
+        .filter((c: any) => catData.series.includes(c.name))
+        .sort((a: any, b: any) => Math.abs(b.shap) - Math.abs(a.shap))[0];
+
+      // Fallback if no specific contributor found (use the hero series itself with a neutral shap if needed, or just 0)
+      if (!relevantContributor) {
+         // If we can't find a specific SHAP value, we might default to describing the hero series trend roughly
+         // Or just mock a 0 shap for the description generator to be safe
+         relevantContributor = { name: heroId, shap: 0 };
+      }
+
+      const description = getDescription(relevantContributor.name, relevantContributor.shap);
+
+      return {
+        key,
+        title: toDisplayName(key),
+        score: typeof catData.outlook_score === "number" ? catData.outlook_score : null,
+        color: "#c8bcab", // You might want to map colors to categories if desired
+        heroSeriesData,
+        description,
+        otherSeriesIds: otherIds,
+      };
+    })
+  );
 
   return (
     <main className="max-w-5xl mx-auto px-4 md:px-10 py-4 md:py-3 text-[var(--foreground)]">
       <MainDial dialVal={dialVal} />
       
+      <RecessionHistoryChart />
+
       <ContributingFactors score={dialVal} contributors={contributors} />
       
-      {/* Outlook Cards Section */}
+      {/* Outlook Cards Section - Now a Single Page App Grid */}
       <section className="mb-16">
         <div className="mb-4">
           <h2 className="text-3xl font-bold mb-2">Stability Outlook</h2>
@@ -29,18 +72,7 @@ export default async function Home() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {categoryKeys.map((key) => (
-            <OutlookCard
-              key={key}
-              title={toDisplayName(key)}
-              category={key}
-              score={typeof categories[key]?.outlook_score === "number" ? categories[key].outlook_score! : null}
-              color="#c8bcab"
-              href={`/${slugify(key)}`}
-            />
-          ))}
-        </div>
+        <DashboardGrid categoriesData={categoriesData} />
       </section>
 
       <section className="mb-24 grid md:grid-cols-3 gap-10 items-start">
