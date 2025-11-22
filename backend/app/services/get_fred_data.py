@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+from datetime import date, timedelta
 from fredapi import Fred
 from sqlalchemy.orm import Session
 from app.db.models import Series, Observation
@@ -50,7 +52,7 @@ def get_series_db(series_id, start=None, end=None, session: Session = None):
         "series": observations
     }
 
-def get_categories_with_series():
+def get_categories_with_series(session: Session = None):
     categories = {}
     
     for series_id, category in SERIES_TO_LOAD.items():
@@ -60,4 +62,51 @@ def get_categories_with_series():
                 "outlook_score": 50
             }
         categories[category]["series"].append(series_id)
+
+    if session:
+        try:
+            end_date = date.today()
+            start_date = end_date - timedelta(days=365*20)
+            
+            series_ids = list(SERIES_TO_LOAD.keys())
+            
+            query = session.query(
+                Observation.series_id, 
+                Observation.value, 
+                Observation.date
+            ).filter(
+                Observation.series_id.in_(series_ids),
+                Observation.date >= start_date
+            ).statement
+            
+            df = pd.read_sql(query, session.bind)
+            
+            if not df.empty:
+                df['date'] = pd.to_datetime(df['date'])
+                
+                series_scores = {}
+                for series_id in series_ids:
+                    series_df = df[df['series_id'] == series_id].sort_values('date')
+                    
+                    # Remove any missing values
+                    series_df = series_df.dropna(subset=['value'])
+                    
+                    if not series_df.empty:
+                        current_val = series_df.iloc[-1]['value']
+                        values = series_df['value'].values
+                        rank = (values <= current_val).sum()
+                        percentile = (rank / len(values)) * 100
+                        series_scores[series_id] = percentile
+                
+                for category in categories:
+                    cat_series = categories[category]["series"]
+                    valid_scores = [series_scores[sid] for sid in cat_series if sid in series_scores]
+                    
+                    if valid_scores:
+                        avg_score = sum(valid_scores) / len(valid_scores)
+                        categories[category]["outlook_score"] = round(avg_score)
+
+        except Exception as e:
+            print(f"Error calculating outlook scores: {e}")
+
     return categories

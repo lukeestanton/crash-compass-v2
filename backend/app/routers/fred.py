@@ -22,9 +22,9 @@ def series(series_id: str, start: str = None, end: str = None, db: Session = Dep
         raise HTTPException(status_code = 500, detail = str(e))
 
 @router.get("/categories")
-def get_categories():
+def get_categories(db: Session = Depends(get_db)):
     try:
-        return get_categories_with_series()
+        return get_categories_with_series(session=db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
