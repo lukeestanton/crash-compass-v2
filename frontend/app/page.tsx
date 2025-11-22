@@ -1,6 +1,7 @@
 // home
 import MainDial from "./components/MainDial";
 import OutlookCard from "./components/OutlookCard";
+import ContributingFactors from "./components/ContributingFactors";
 import { apiGet } from "@/lib/api";
 import { slugify, toDisplayName } from "@/lib/slug";
 
@@ -10,11 +11,14 @@ export default async function Home() {
     apiGet<any>("/api/v1/fred/dial_score").catch(() => 0)
   ]);
   const dialVal = typeof dialScoreRaw === "number" ? dialScoreRaw : (dialScoreRaw?.score ?? 0);
+  const contributors = (typeof dialScoreRaw === "object" && dialScoreRaw !== null) ? dialScoreRaw.contributors : [];
   const categoryKeys = Object.keys(categories || {});
 
   return (
     <main className="max-w-5xl mx-auto px-4 md:px-10 py-4 md:py-3 text-[var(--foreground)]">
       <MainDial dialVal={dialVal} />
+      
+      <ContributingFactors score={dialVal} contributors={contributors} />
       
       {/* Outlook Cards Section */}
       <section className="mb-16">

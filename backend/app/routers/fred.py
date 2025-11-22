@@ -31,9 +31,9 @@ def get_categories(db: Session = Depends(get_db)):
 @router.get("/dial_score")
 def get_dial_score(db: Session = Depends(get_db)):
     try:
-        score = predict_recession_prob(session=db)
-        if score is None:
-            return 0.0 
-        return score
+        result = predict_recession_prob(session=db)
+        if result is None:
+            return {"score": 0.0, "contributors": []}
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

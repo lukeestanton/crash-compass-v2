@@ -8,3 +8,4 @@ pandas
 joblib
 python-dotenv
 
+shap==0.46.0
