@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --accent:     #c8bcab;
+}
+
+
+
+
+
+.text-accent   { color: var(--accent); }
+.bg-accent     { background-color: var(--accent); }
+.border-accent { border-color:  var(--accent); }
+.ring-accent   { --tw-ring-color: var(--accent); }
