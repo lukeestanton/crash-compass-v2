@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import OutlookCard from "./OutlookCard";
+import DrillDownModal from "./DrillDownModal";
 
 interface CategoryData {
   key: string;
@@ -17,35 +18,37 @@ interface DashboardGridProps {
 }
 
 export default function DashboardGrid({ categoriesData }: DashboardGridProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
 
-  const handleToggle = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+  const handleOpen = (cat: CategoryData) => {
+    setSelectedCategory(cat);
+  };
+
+  const handleClose = () => {
+    setSelectedCategory(null);
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 transition-all">
-      {categoriesData.map((cat) => (
-        <div
-          key={cat.key}
-          className={`transition-all duration-300 ease-in-out ${
-            expandedId === cat.key ? "md:col-span-2" : ""
-          }`}
-        >
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all">
+        {categoriesData.map((cat) => (
           <OutlookCard
+            key={cat.key}
             title={cat.title}
             category={cat.key}
             score={cat.score}
             color={cat.color}
             heroSeriesData={cat.heroSeriesData}
-            description={cat.description}
-            otherSeriesIds={cat.otherSeriesIds}
-            isExpanded={expandedId === cat.key}
-            onToggle={() => handleToggle(cat.key)}
+            onToggle={() => handleOpen(cat)}
           />
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <DrillDownModal 
+        isOpen={!!selectedCategory} 
+        onClose={handleClose} 
+        category={selectedCategory} 
+      />
+    </>
   );
 }
-

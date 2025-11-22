@@ -59,8 +59,6 @@ export default async function Home() {
     <main className="max-w-5xl mx-auto px-4 md:px-10 py-4 md:py-3 text-[var(--foreground)]">
       <MainDial dialVal={dialVal} />
       
-      <RecessionHistoryChart />
-
       <ContributingFactors score={dialVal} contributors={contributors} />
       
       {/* Outlook Cards Section - Now a Single Page App Grid */}
@@ -129,6 +127,17 @@ export default async function Home() {
             View data sources →
           </a>
         </div>
+      </section>
+
+      {/* Verify Section */}
+      <section className="mb-24">
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold mb-3">Verify the Model</h2>
+          <p className="text-gray-700 leading-relaxed text-lg">
+            Trust is earned. See how our model would have predicted previous major economic events compared to what actually happened.
+          </p>
+        </div>
+        <RecessionHistoryChart />
       </section>
     </main>
   );

@@ -120,6 +120,21 @@ function buildOption(value: number): echarts.EChartsOption {
 export default function MainDial({ dialVal }: { dialVal: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
+  const score = Math.round(dialVal);
+
+  let statusText = "";
+  let statusColor = "";
+
+  if (score < 30) {
+    statusText = "Low Risk";
+    statusColor = "text-green-600";
+  } else if (score <= 60) {
+    statusText = "Elevated Risk";
+    statusColor = "text-orange-500";
+  } else {
+    statusText = "Critical Warning";
+    statusColor = "text-red-600";
+  }
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -147,17 +162,23 @@ export default function MainDial({ dialVal }: { dialVal: number }) {
       <div className="flex flex-col w-fit">
         <div className="flex items-end gap-x-16">
           <div className="flex flex-col justify-end">
-            <span className="font-semibold tracking-wide text-gray-600 text-4xl">
+            <span className="font-semibold tracking-wide text-gray-600 text-4xl mb-2">
               Live Recession Forecast
             </span>
 
-            <span className="text-8xl font-extrabold leading-none">{Math.round(dialVal)}%</span>
+            <div className="flex items-end gap-4">
+               <span className="text-8xl font-extrabold leading-none text-gray-900">{score}%</span>
+               <div className={`flex flex-col pb-3 ${statusColor}`}>
+                  <span className="text-sm font-bold uppercase tracking-widest opacity-80 leading-none mb-1">Status</span>
+                  <span className="text-3xl font-bold whitespace-nowrap leading-none">{statusText}</span>
+               </div>
+            </div>
           </div>
           <div className="hidden md:flex">
             <div ref={containerRef} style={{ width: 600, height: 320 }} />
           </div>
         </div>
-        <div className="border-b-2 border-gray-300 w-full" />
+        <div className="border-b-2 border-gray-300 w-full mt-0" />
       </div>
     </section>
   );
