@@ -1,6 +1,6 @@
 # Crash Compass V2
 
-Crash Compass is an AI-powered economic forecasting tool that predicts the probability of a US recession in real-time. 
+Crash Compass is a ML-powered economic forecasting tool that predicts the probability of a US recession in real-time. 
 
 By analyzing over 60 years of historical data from the Federal Reserve, Bureau of Labor Statistics, and Treasury, the machine learning model identifies subtle warning signs and healthy signals to provide a daily "Stability Outlook" score.
 
