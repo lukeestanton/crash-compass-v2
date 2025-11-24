@@ -1,47 +1,116 @@
 # Crash Compass V2
 
-## Project Structure
+Crash Compass is an AI-powered economic forecasting tool that predicts the probability of a US recession in real-time. 
 
-- **backend/**: FastAPI application with machine learning services.
-- **frontend/**: Next.js application for the user interface.
+By analyzing over 60 years of historical data from the Federal Reserve, Bureau of Labor Statistics, and Treasury, the machine learning model identifies subtle warning signs and healthy signals to provide a daily "Stability Outlook" score.
 
-## Backend Setup
+![Crash Compass UI](frontend/public/CrashCompassTransparent.svg)
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+## 🚀 Features
 
-2. Create and activate a virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+- **Real-Time Recession Probability:** A daily-updated "Dial" score (0-100%) indicating the likelihood of an economic downturn.
+- **Explainable AI:** Breaks down the prediction into contributing factors (e.g., "Yield Curve Inversion", "Unemployment Rate") using SHAP values, so you know *why* the model thinks what it thinks.
+- **Historical Backtesting:** Compare the model's predictions against past actual recession dates to verify accuracy.
+- **Interactive Dashboard:** Explore detailed charts for key economic indicators like employment, housing, inflation, and interest rates.
+- **Automatic Data Updates:** Fetches the latest economic data from the FRED (Federal Reserve Economic Data) API daily.
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🛠 Tech Stack
 
-4. Run the server:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
+### Backend
+- **Framework:** FastAPI (Python)
+- **Machine Learning:** scikit-learn (Random Forest Classifier), Pandas, NumPy
+- **Data Source:** FRED API (`fredapi`)
+- **Database:** SQLite (via SQLAlchemy)
 
-## Frontend Setup
+### Frontend
+- **Framework:** Next.js 15 (React 19)
+- **Styling:** Tailwind CSS 4
+- **Charts:** Apache ECharts
+- **Icons:** Lucide React
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
+## Installation & Setup
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- A free API Key from [FRED (Federal Reserve Economic Data)](https://fred.stlouisfed.org/docs/api/api_key.html)
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/crash-compass-v2.git
+cd crash-compass-v2
+```
 
+### 2. Backend Setup
+
+Navigate to the backend folder and set up the Python environment.
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**Environment Configuration:**
+Create a `.env` file in the `backend/` directory:
+```bash
+# backend/.env
+FRED_API_KEY=your_fred_api_key_here
+ALLOW_ORIGINS=http://localhost:3000
+```
+
+**Initialize Data:**
+Before running the server, you need to fetch the initial data and train the model (or use the pre-trained one).
+
+```bash
+# Fetch latest data and initialize the database
+python -m scripts.init_db
+python -m scripts.fetch_and_store
+
+# (Optional) Retrain the model
+python -m scripts.train_model
+```
+
+**Run the Backend Server:**
+```bash
+uvicorn app.main:app --reload
+```
+The API will be available at `http://localhost:8000`.
+
+### 3. Frontend Setup
+
+Open a new terminal, navigate to the frontend folder, and install dependencies.
+
+```bash
+cd frontend
+npm install
+```
+
+**Environment Configuration:**
+Create a `.env.local` file in the `frontend/` directory (optional, defaults to localhost:8000):
+```bash
+# frontend/.env.local
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+**Run the Frontend:**
+```bash
+npm run dev
+```
+The application will be available at `http://localhost:3000`.
+
+## How It Works
+
+1.  **Track:** The system pulls fresh economic indicators (Yield Curve, Unemployment, CPI, etc.) from FRED every day.
+2.  **Analyze:** The data is processed and fed into a Random Forest Classifier trained on historical recession data (NBER dates).
+3.  **Predict:** The model outputs a probability score (0-100%).
+4.  **Interpret:** SHAP (SHapley Additive exPlanations) values are calculated to determine which indicators contributed most to the current score, providing transparency.
+
+## 📄 License
+
+This project is open-source and available under the MIT License.
+
+## Acknowledgments
+
+- Data provided by [Federal Reserve Economic Data (FRED)](https://fred.stlouisfed.org/), Federal Reserve Bank of St. Louis.
