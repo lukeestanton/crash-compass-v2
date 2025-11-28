@@ -6,6 +6,8 @@ import { apiGet } from "@/lib/api";
 import { toDisplayName } from "@/lib/slug";
 import { getDescription } from "@/lib/descriptions";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const [categories, dialScoreRaw] = await Promise.all([
     apiGet<Record<string, { series: string[]; outlook_score?: number }>>("/api/v1/fred/categories"),
