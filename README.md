@@ -1,20 +1,18 @@
 # Crash Compass V2
 
-Crash Compass is a ML-powered economic forecasting tool that predicts the probability of a US recession in real-time. 
-
-By analyzing over 60 years of historical data from the Federal Reserve, Bureau of Labor Statistics, and Treasury, the machine learning model identifies subtle warning signs and healthy signals to provide a daily "Stability Outlook" score.
+Crash Compass is an economic forecasting tool that estimates the probability of a US recession. It uses a Random Forest model trained on 60+ years of data from the Federal Reserve, Bureau of Labor Statistics, and Treasury to produce a daily "Stability Outlook" score.
 
 ![Crash Compass UI](frontend/public/CrashCompassTransparent.svg)
 
-## 🚀 Features
+## Features
 
-- **Real-Time Recession Probability:** A daily-updated "Dial" score (0-100%) indicating the likelihood of an economic downturn.
-- **Explainable AI:** Breaks down the prediction into contributing factors (e.g., "Yield Curve Inversion", "Unemployment Rate") using SHAP values, so you know *why* the model thinks what it thinks.
-- **Historical Backtesting:** Compare the model's predictions against past actual recession dates to verify accuracy.
-- **Interactive Dashboard:** Explore detailed charts for key economic indicators like employment, housing, inflation, and interest rates.
-- **Automatic Data Updates:** Fetches the latest economic data from the FRED (Federal Reserve Economic Data) API daily.
+- **Daily recession probability** — a 0-100% score updated each day
+- **Factor breakdown** — shows which indicators (yield curve, unemployment, etc.) are driving the score, using SHAP values
+- **Historical backtesting** — compare predictions against actual past recession dates
+- **Indicator charts** — drill into employment, housing, inflation, interest rates, and more
+- **Automatic data refresh** — pulls new data from the FRED API daily
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Backend
 - **Framework:** FastAPI (Python)
@@ -102,12 +100,12 @@ The application will be available at `http://localhost:3000`.
 
 ## How It Works
 
-1.  **Track:** The system pulls fresh economic indicators (Yield Curve, Unemployment, CPI, etc.) from FRED every day.
-2.  **Analyze:** The data is processed and fed into a Random Forest Classifier trained on historical recession data (NBER dates).
-3.  **Predict:** The model outputs a probability score (0-100%).
-4.  **Interpret:** SHAP (SHapley Additive exPlanations) values are calculated to determine which indicators contributed most to the current score, providing transparency.
+1.  Fresh economic indicators (yield curve, unemployment, CPI, etc.) are pulled from FRED daily.
+2.  The data is processed and fed into a Random Forest Classifier trained on historical recession dates (NBER).
+3.  The model outputs a probability score (0-100%).
+4.  SHAP values are calculated to show which indicators contributed most to the current score.
 
-## 📄 License
+## License
 
 This project is open-source and available under the MIT License.
 
